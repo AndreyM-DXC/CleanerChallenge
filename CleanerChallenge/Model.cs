@@ -6,6 +6,7 @@ namespace CleanerChallenge
         public const int Width = 1280;
         public const int Height = 800;
 
+        public Timer timer { get; set; }
         public int score { get; set; }
         public string dust { get; set; } = "";
         public Point robot { get; set; }
@@ -55,6 +56,17 @@ namespace CleanerChallenge
         public override string ToString()
         {
             return $"({x}, {y})";
+        }
+    }
+
+    public struct Timer
+    {
+        public double timeout { get; set; }
+        public double dt { get; set; }
+
+        public override string ToString()
+        {
+            return $"{timeout} / {dt}";
         }
     }
 }

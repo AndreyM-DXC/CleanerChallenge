@@ -6,7 +6,15 @@ namespace CleanerChallenge
     [Route("api")]
     public class RobotController : ControllerBase
     {
-        private readonly Random random = new Random();
+        private static Random random = new Random();
+
+        [HttpGet("reset")]
+        public void Reset()
+        {
+            //TODO Initialization Logic
+
+            random = new Random(2);
+        }
 
         [HttpPost("next")]
         public Command Next(State state)

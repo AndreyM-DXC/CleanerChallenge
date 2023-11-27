@@ -1,5 +1,6 @@
 ﻿
 const dust = document.getElementById('dust').getContext("2d", { willReadFrequently: true })
+const overlay = document.getElementById('overlay')
 
 function mulberry32(a) {
     return function () {
@@ -24,6 +25,10 @@ class Robot {
         dust.fillStyle = '#fff';
         dust.fill();
 
+        dust.globalCompositeOperation = 'destination-out'
+        dust.drawImage(overlay, this.x - 33, this.y - 33, 66, 66, this.x - 33, this.y - 33, 66, 66)
+        dust.globalCompositeOperation = 'source-over'
+
         this.dom.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${this.a}rad)`
     }
 
@@ -38,17 +43,16 @@ class Robot {
                 socks[i].dom.remove()
                 socks.splice(i, 1)
                 count++
-                console.log("EAT")
             }
         }
         return count
     }
 
     collides(x, y) {
-        const data = dust.getImageData(x - 33, y - 33, 66, 66).data
-        const R2 = 33 * 33
-        for (let i = -33, idx = 0; i < 33; i++) {
-            for (let j = -33; j < 33; j++, idx += 4) {
+        const data = dust.getImageData(x - 32, y - 32, 64, 64).data
+        const R2 = 32 * 32
+        for (let i = -32, idx = 0; i < 32; i++) {
+            for (let j = -32; j < 32; j++, idx += 4) {
                 if (data[idx] == 0 && i * i + j * j < R2) {
                     return true
                 }
@@ -103,7 +107,6 @@ class Robot {
 
 class Room {
     constructor(seed, count) {
-        const overlay = document.getElementById('overlay')
         const socks = document.getElementById('socks')
         const random = mulberry32(seed)
 
@@ -147,8 +150,8 @@ class Timer {
         return sec < 10 ? `${min}:0${sec}` : `${min}:${sec}`
     }
 
-    tick() {
-        return (this.timeout -= this.dt) > 0
+    tick(count = 1) {
+        return (this.timeout -= this.dt * count) > 0
     }
 
     frame() {
@@ -179,12 +182,16 @@ async function RunGame() {
             d[i] = String.fromCharCode(data[i * 4])
         }
         return {
+            timer: timer,
             score: calcScore(),
             dust: btoa(d.join('')),
             robot: { x: robot.x, y: robot.y },
             socks: room.socks.map(sock => ({ x: sock.x, y: sock.y }))
         }
     }
+
+    robot.draw()
+    await fetch('/api/reset')
 
     while (true) {
         try {
@@ -202,11 +209,15 @@ async function RunGame() {
             score.innerText = state.score
             time.innerText = timer.toString()
 
+            if (!timer.tick(3)) {
+                return
+            }
+
             const it = robot.moveTo(command.x, command.y)
             for (let step = it.next(); !step.done; step = it.next()) {
                 const collected = robot.collect(room.socks)
                 if (collected > 0) {
-                    timer.dt += collected * 0.1
+                    timer.dt += collected * 0.5
                 }
                 if (!timer.tick()) {
                     score.innerText = calcScore()
@@ -226,5 +237,4 @@ async function RunGame() {
     }
 }
 
-const overlay = document.getElementById('overlay')
 overlay.complete ? RunGame() : (overlay.onload = RunGame)
