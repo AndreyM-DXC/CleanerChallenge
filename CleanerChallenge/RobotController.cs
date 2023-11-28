@@ -9,11 +9,14 @@ namespace CleanerChallenge
         private static Random random = new Random();
 
         [HttpGet("reset")]
-        public void Reset()
+        public int Reset()
         {
             //TODO Initialization Logic
 
             random = new Random(2);
+
+            // Random seed for socks will be changed
+            return 123;
         }
 
         [HttpPost("next")]

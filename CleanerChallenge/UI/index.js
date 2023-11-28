@@ -160,10 +160,11 @@ class Timer {
 }
 
 async function RunGame() {
+    const seed = await fetch('/api/reset')
     const score = document.getElementById('score')
     const time = document.getElementById('time')
     const robot = new Robot(100, 200)
-    const room = new Room(123, 21)
+    const room = new Room(await seed.json(), 21)
     const timer = new Timer(5 * 60)
 
     function calcScore() {
@@ -191,7 +192,6 @@ async function RunGame() {
     }
 
     robot.draw()
-    await fetch('/api/reset')
 
     while (true) {
         try {
