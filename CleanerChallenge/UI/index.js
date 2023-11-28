@@ -210,7 +210,7 @@ async function RunGame() {
             time.innerText = timer.toString()
 
             if (!timer.tick(3)) {
-                return
+                return GameOver(score.innerText)
             }
 
             const it = robot.moveTo(command.x, command.y)
@@ -222,7 +222,7 @@ async function RunGame() {
                 if (!timer.tick()) {
                     score.innerText = calcScore()
                     time.innerText = '0:00'
-                    return
+                    return GameOver(score.innerText)
                 }
                 if (!command.fast) {
                     score.innerText = calcScore()
@@ -234,6 +234,26 @@ async function RunGame() {
         catch (e) {
             console.error(e)
         }
+    }
+}
+
+async function GameOver(score) {
+    try {
+        const response = await fetch('/api/restart', {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({ score })
+        })
+        const restart = await response.json()
+        if (restart) {
+            location.reload()
+        }
+    }
+    catch (e) {
+        console.error(e)
     }
 }
 

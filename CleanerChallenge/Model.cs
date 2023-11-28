@@ -69,4 +69,9 @@ namespace CleanerChallenge
             return $"{timeout} / {dt}";
         }
     }
+
+    public struct GameOver
+    {
+        public int score { get; set; }
+    }
 }

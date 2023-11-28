@@ -30,5 +30,11 @@ namespace CleanerChallenge
                 y = random.Next(State.Height),
             };
         }
+
+        [HttpPost("restart")]
+        public bool Restart(GameOver game)
+        {
+            return false;
+        }
     }
 }
